@@ -139,12 +139,11 @@ function DiagnosticRecord(d::Violation)::DiagnosticRecord
 end
 
 function StructUtils.lower(::JSONStyle, cs::ConfigSourceRecord)
-    pairs = Pair{Symbol, String}[]
-    push!(pairs, Symbol("kind") => wire_name(cs.kind))
-    cs.path !== nothing && push!(pairs, Symbol("path") => cs.path)
-    cs.ref !== nothing && push!(pairs, Symbol("ref") => cs.ref)
-    cs.sha !== nothing && push!(pairs, Symbol("sha") => cs.sha)
-    return NamedTuple(pairs)
+    nt = (kind = wire_name(cs.kind),)
+    cs.path === nothing || (nt = merge(nt, (path = cs.path,)))
+    cs.ref === nothing || (nt = merge(nt, (ref = cs.ref,)))
+    cs.sha === nothing || (nt = merge(nt, (sha = cs.sha,)))
+    return nt
 end
 
 StructUtils.lower(::JSONStyle, x::ConfigSourceKind.T) = wire_name(x)
