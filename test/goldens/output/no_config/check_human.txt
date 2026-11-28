@@ -26,16 +26,16 @@ AgentRuleLint v<VERSION> (policy bundle base: builtin, pos: utf8-line-col, git: 
 │       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_above_catch_suppress.jl:3:1-3:83
 │     expect forbidden above catch
-│     >     # agentrulelint-expect: project/no-internal-codename reason="must n…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     >     # agentrulelint-expect: project/no-internal-codename reason="must not suppr… (+4 chars omitted)
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~…
 │   test/corpus/expect_anchor_mismatch.jl:1:1-1:73
 │     expect not anchored to rule target syntax
-│     > # agentrulelint-expect: silent-catch reason="must anchor to try or catc…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     > # agentrulelint-expect: silent-catch reason="must anchor to try or catch"
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_anchor_mismatch.jl:1:1-1:73
 │     unused expect
-│     > # agentrulelint-expect: silent-catch reason="must anchor to try or catc…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     > # agentrulelint-expect: silent-catch reason="must anchor to try or catch"
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_anchor_mismatch_suppress.jl:1:1-1:71
 │     expect not anchored to rule target syntax
 │     > # agentrulelint-expect: no-internal-codename reason="must not suppress"
@@ -46,8 +46,8 @@ AgentRuleLint v<VERSION> (policy bundle base: builtin, pos: utf8-line-col, git: 
 │       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_blank_line.jl:1:1-1:79
 │     blank line breaking expect attachment (unused)
-│     > # agentrulelint-expect: project/no-internal-codename reason="should not…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     > # agentrulelint-expect: project/no-internal-codename reason="should not attach"
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_empty_reason.jl:1:1-1:46
 │     empty reason
 │     > # agentrulelint-expect: expect-audit reason=""
@@ -58,32 +58,32 @@ AgentRuleLint v<VERSION> (policy bundle base: builtin, pos: utf8-line-col, git: 
 │       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_mixed_group_anchor.jl:2:1-2:73
 │     expect not anchored to rule target syntax
-│     > # agentrulelint-expect: silent-catch reason="not eligible on same ancho…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     > # agentrulelint-expect: silent-catch reason="not eligible on same anchor"
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_mixed_group_anchor.jl:2:1-2:73
 │     unused expect
-│     > # agentrulelint-expect: silent-catch reason="not eligible on same ancho…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     > # agentrulelint-expect: silent-catch reason="not eligible on same anchor"
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_multiline_call.jl:2:1-2:82
 │     expect inside multiline call arguments
-│     >     # agentrulelint-expect: project/no-internal-codename reason="inside…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     >     # agentrulelint-expect: project/no-internal-codename reason="inside call ar… (+3 chars omitted)
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~…
 │   test/corpus/expect_multiline_call_outside.jl:1:1-1:74
 │     blank line breaking expect attachment (unused)
-│     > # agentrulelint-expect: project/no-internal-codename reason="outside ca…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     > # agentrulelint-expect: project/no-internal-codename reason="outside call"
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 │   test/corpus/expect_multiline_call_suppress.jl:2:1-2:83
 │     expect inside multiline call arguments
-│     >     # agentrulelint-expect: project/no-internal-codename reason="must n…
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     >     # agentrulelint-expect: project/no-internal-codename reason="must not suppr… (+4 chars omitted)
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~…
 │   test/corpus/expect_runic_off.jl:2:1-2:81
 │     blank line breaking expect attachment (unused)
-│     > # agentrulelint-expect: project/no-internal-codename reason="hidden in …
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     > # agentrulelint-expect: project/no-internal-codename reason="hidden in runic of… (+2 chars omitted)
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~…
 │   test/corpus/expect_runic_off.jl:2:1-2:81
 │     expect inside runic:off region forbidden
-│     > # agentrulelint-expect: project/no-internal-codename reason="hidden in …
-│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+│     > # agentrulelint-expect: project/no-internal-codename reason="hidden in runic of… (+2 chars omitted)
+│       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~…
 │ ... (+5 omitted)
 └ @ AgentRuleLint (run `agentrulelint explain expect-audit` for details)
 
