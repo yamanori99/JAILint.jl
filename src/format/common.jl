@@ -138,6 +138,21 @@ function human_underline_for_display(
     return underline_for_span(visible_line, Span(sc, sc, ec, ec); marker = marker)
 end
 
+function _human_gutter_underline_body(excerpt::AbstractString, span::Span; marker::Char = '~')
+    visible = _src_visible_body(excerpt)
+    ul_body = human_underline_for_display(visible, span; marker = marker)
+    isempty(ul_body) && return ""
+    ul = rstrip(ul_body, ' ')
+    isempty(ul) && return ""
+    if endswith(excerpt, ELLIPSIS_CHAR)
+        n = length(visible)
+        sc = clamp(span.start_col, 1, n)
+        ec = clamp(span.end_col, sc, n)
+        ec >= n && sc <= n && (ul = ul * ELLIPSIS_CHAR)
+    end
+    return ul
+end
+
 function human_rule_footer(rule_id::String, origin::Origin.T, config_path::AbstractString)
     if origin == Origin.AGENTRULELINT
         return "└ @ AgentRuleLint (run `agentrulelint explain $rule_id` for details)"
@@ -166,17 +181,14 @@ function println_human_code_gutter(
         line::AbstractString,
         span::Span,
     )
+    width < 1 && error("internal: invalid human output width")
     line_prefix = HUMAN_CODE_PREFIX
     ul_prefix = HUMAN_UNDERLINE_PREFIX
-    budget = width - visible_textwidth(line_prefix)
-    src = _truncate_chars(line, budget, with_ellipsis = true)
-    println(buf, _human_truncate_code(src, line_prefix, width))
-    visible = _src_visible_body(src)
-    ul_body = human_underline_for_display(visible, span; marker = '~')
-    !isempty(ul_body) || return nothing
-    ul = rstrip(ul_body, ' ')
-    isempty(ul) && return nothing
-    println(buf, _human_truncate_code(ul, ul_prefix, width))
+    excerpt, omit_suffix, _ = _human_gutter_excerpt(line)
+    println(buf, string(line_prefix, excerpt, omit_suffix))
+    ul_display = _human_gutter_underline_body(excerpt, span; marker = '~')
+    isempty(ul_display) && return nothing
+    println(buf, string(ul_prefix, ul_display))
     return nothing
 end
 
