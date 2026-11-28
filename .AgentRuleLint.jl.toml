@@ -49,6 +49,7 @@ paths = [
   { glob = "test/shard_lib.jl", reason = "This file decides which mutation harnesses and test files each CI shard runs (shard parsing and round-robin selection)." },
   { glob = "test/shard_select.jl", reason = "This file decides which Pkg.test files each CI shard runs." },
   { glob = "test/parallel_testsuite_config.jl", reason = "This file lists the test files excluded from the default Pkg.test suite." },
+  { glob = "test/mutation/**/*.jl", on = ["deleted", "renamed"], reason = "Mutation harness scripts and detectors must not be removed or renamed away without review." },
   { glob = "scripts/whitespace-gate.sh", reason = "This script decides whether the whitespace CI job and the pre-push gate pass." },
 ]
 
