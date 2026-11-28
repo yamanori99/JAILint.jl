@@ -51,6 +51,7 @@ paths = [
   { glob = "test/parallel_testsuite_config.jl", reason = "This file lists the test files excluded from the default Pkg.test suite." },
   { glob = "test/mutation/**/*.jl", on = ["deleted", "renamed"], reason = "Mutation harness scripts and detectors must not be removed or renamed away without review." },
   { glob = "scripts/whitespace-gate.sh", reason = "This script decides whether the whitespace CI job and the pre-push gate pass." },
+  { glob = "scripts/dogfood.sh", reason = "This script decides what the dogfood job and the pre-push gate report." },
 ]
 
 [[project_rules]]

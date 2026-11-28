@@ -395,27 +395,7 @@ jobs:
         with:
           cache-scratchspaces: false
 
-      - name: Checkout base linter worktree
-        shell: bash
-        run: |
-          set -euo pipefail
-          : "${GITHUB_BASE_REF:?GITHUB_BASE_REF unset (pull_request only)}"
-          git fetch origin "${GITHUB_BASE_REF}"
-          if [[ -e .linter-base ]]; then
-            git worktree remove -f .linter-base
-          fi
-          git worktree add .linter-base "origin/${GITHUB_BASE_REF}"
-          linter_sha="$(git -C .linter-base rev-parse HEAD)"
-          base_tip="$(git rev-parse "origin/${GITHUB_BASE_REF}")"
-          echo "dogfood linter commit: ${linter_sha}"
-          echo "dogfood base tip: ${base_tip}"
-          [[ "${linter_sha}" == "${base_tip}" ]]
-
-      - name: Instantiate base linter project
-        shell: bash
-        run: julia --startup-file=no --project=.linter-base -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-
-      - name: AgentRuleLint.jl check (dogfood)
+      - name: Run dogfood script (PR tree until base branch ships scripts/dogfood.sh)
         shell: bash
         env:
           DOGFOOD_DIR: ${{ runner.temp }}/dogfood
@@ -424,47 +404,7 @@ jobs:
         run: |
           set -euo pipefail
           : "${GITHUB_BASE_REF:?GITHUB_BASE_REF unset (pull_request only)}"
-          mkdir -p "${DOGFOOD_DIR}"
-          base_sha="$(git merge-base "origin/${GITHUB_BASE_REF}" HEAD)"
-          echo "dogfood merge-base: ${base_sha}"
-          linter_sha="$(git -C .linter-base rev-parse HEAD)"
-          pkg_version="$(sed -n -E 's/^version = "([^"]+)".*/\1/p' .linter-base/Project.toml | head -1)"
-          julia_version="$(julia --version | sed -n 's/^julia version \([^ ]*\).*/\1/p')"
-          set +e
-          julia --startup-file=no --project=.linter-base -m AgentRuleLint check \
-            --diff "${base_sha}" \
-            --config-from "origin/${GITHUB_BASE_REF}" \
-            --format human 2>&1 | tee "${DOGFOOD_DIR}/human.log"
-          human_exit="${PIPESTATUS[0]}"
-          julia --startup-file=no --project=.linter-base -m AgentRuleLint check \
-            --diff "${base_sha}" \
-            --config-from "origin/${GITHUB_BASE_REF}" \
-            --format json \
-            --output "${DOGFOOD_DIR}/dogfood.jsonl" 2> "${DOGFOOD_DIR}/json.stderr"
-          json_exit=$?
-          set -e
-          jq -n \
-            --argjson pr_number "${PR_NUMBER}" \
-            --arg head_sha "${HEAD_SHA}" \
-            --arg merge_base_sha "${base_sha}" \
-            --arg base_ref "${GITHUB_BASE_REF}" \
-            --arg linter_commit_sha "${linter_sha}" \
-            --arg package_version "${pkg_version}" \
-            --arg julia_version "${julia_version}" \
-            --argjson human_exit_code "${human_exit}" \
-            --argjson json_exit_code "${json_exit}" \
-            '{
-              pr_number: $pr_number,
-              head_sha: $head_sha,
-              merge_base_sha: $merge_base_sha,
-              base_ref: $base_ref,
-              linter_commit_sha: $linter_commit_sha,
-              package_version: $package_version,
-              julia_version: $julia_version,
-              human_exit_code: $human_exit_code,
-              json_exit_code: $json_exit_code
-            }' > "${DOGFOOD_DIR}/meta.json"
-          exit "${human_exit}"
+          ./scripts/dogfood.sh "origin/${GITHUB_BASE_REF}" "${DOGFOOD_DIR}" "human,json"
 
       - name: Upload dogfood findings
         if: always()

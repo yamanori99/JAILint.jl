@@ -27,27 +27,15 @@ Read `.github/actions-lint.env` before bumping tool versions.
 Dogfood (match the CI `dogfood` job: base-branch linter, not the working tree's `src/`):
 
 ```bash
-set -euo pipefail
-git fetch origin main
-if [[ -e .linter-base ]]; then
-  git worktree remove -f .linter-base
-fi
-git worktree add --detach .linter-base origin/main
-JULIA_LOAD_PATH="@:@stdlib" julia +1.13 --startup-file=no --project=.linter-base -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-set -o pipefail
-JULIA_LOAD_PATH="@:@stdlib" julia +1.13 --startup-file=no --project=.linter-base -m AgentRuleLint check \
-  --diff "$(git merge-base origin/main HEAD)" \
-  --config-from origin/main \
-  --format agent 2>&1 | tee /tmp/agentrulelint-dogfood.log
-git worktree remove -f .linter-base
+./scripts/dogfood.sh
 ```
 
-`.linter-base/` is listed in `.gitignore` and is not part of the PR diff; dogfood
-uses `--diff` only.
+Dogfood uses `--diff` only; output goes to a fresh temp directory per run (printed
+on the closing `dogfood: exit=... dir=...` line).
 
-Read the **entire** `tee` output (or `/tmp/agentrulelint-dogfood.log`). Do **not**
-use `tail`; the closing summary line does not repeat every `HIT` with path and
-span — you need the full agent format body to locate and fix each finding.
+Read the **entire** script output (human log printed before the closing line). Do **not**
+use `tail` or `head`; the closing summary line does not repeat every finding — you
+need the full human log body to locate and fix each hit.
 
 Expect only `protected-paths` on PRs that touch protected files; fix every other
 finding before push.
