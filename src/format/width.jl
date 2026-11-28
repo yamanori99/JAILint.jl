@@ -69,12 +69,15 @@ function _prose_budget(prefix::AbstractString, width::Int)
     return max(w, 1)
 end
 
-function _truncate_chars(text::AbstractString, maxw::Int; with_ellipsis::Bool = true)
-    isempty(text) && return ""
-    maxw <= 0 && return with_ellipsis ? ELLIPSIS_CHAR : ""
+function _truncate_chars_with_omitted(text::AbstractString, maxw::Int; with_ellipsis::Bool = true)
+    isempty(text) && return ("", 0)
+    if visible_textwidth(text) <= maxw
+        return (text, 0)
+    end
+    maxw <= 0 && return (with_ellipsis ? ELLIPSIS_CHAR : "", length(text))
     reserve = with_ellipsis ? visible_textwidth(ELLIPSIS_CHAR) : 0
     limit = maxw - reserve
-    limit <= 0 && return with_ellipsis ? ELLIPSIS_CHAR : ""
+    limit <= 0 && return (with_ellipsis ? ELLIPSIS_CHAR : "", length(text))
     w = 0
     last_i = nothing
     stopped_early = false
@@ -87,11 +90,31 @@ function _truncate_chars(text::AbstractString, maxw::Int; with_ellipsis::Bool = 
         w += cw
         last_i = i
     end
-    last_i === nothing && return with_ellipsis ? ELLIPSIS_CHAR : ""
+    last_i === nothing && return (with_ellipsis ? ELLIPSIS_CHAR : "", length(text))
     fi = firstindex(text)
     body = fi <= last_i ? text[fi:last_i] : ""
+    omitted = stopped_early ? length(text) - length(body) : 0
     needs_ellipsis = with_ellipsis && stopped_early
-    return needs_ellipsis ? body * ELLIPSIS_CHAR : body
+    display = needs_ellipsis ? body * ELLIPSIS_CHAR : body
+    return (display, omitted)
+end
+
+function _truncate_chars(text::AbstractString, maxw::Int; with_ellipsis::Bool = true)
+    display, _ = _truncate_chars_with_omitted(text, maxw; with_ellipsis = with_ellipsis)
+    return display
+end
+
+"""
+    _human_gutter_excerpt(body, cap=AGENT_EXCERPT_CAP) -> (excerpt, line_suffix, omitted_chars)
+
+Truncate a source line for human `> ` gutter at `cap` visible width (fixed cap, not TTY
+width). When truncated, `line_suffix` is `" (+N chars omitted)"` for the same line;
+otherwise empty. `excerpt` is the truncated body (with ellipsis when cut) for spans.
+"""
+function _human_gutter_excerpt(body::AbstractString, cap::Int = AGENT_EXCERPT_CAP)
+    excerpt, omitted = _truncate_chars_with_omitted(body, cap)
+    suffix = omitted > 0 ? " (+$omitted chars omitted)" : ""
+    return (excerpt, suffix, omitted)
 end
 
 function _wrap_char_chunks(text::AbstractString, budget::Int)
