@@ -147,7 +147,12 @@ const _DIFF_POLICY_FORBIDDEN = "POLICY_BASE_FORBIDDEN"
             write(joinpath(dir, "t.jl"), "1\n")
             git_commit_all!(dir, "only")
             cd(dir) do
-                @test_throws AgentRuleLint.GitError AgentRuleLint.check(dir; diff_base = "not-a-real-ref")
+                err = @test_throws AgentRuleLint.GitError AgentRuleLint.check(
+                    dir;
+                    diff_base = "not-a-real-ref",
+                )
+                @test occursin("not-a-real-ref", sprint(showerror, err.value))
+                @test AgentRuleLint.exit_code_for_error(err.value) == 2
                 @test AgentRuleLint.cli_main(["check", "--diff", "not-a-real-ref"]) == 2
             end
         finally

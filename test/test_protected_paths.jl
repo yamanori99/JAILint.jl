@@ -258,14 +258,13 @@ RULE = "protected-paths"
                 @test any(h -> h.path == ".AgentRuleLint.jl.toml", hits)
                 @test any(h -> h.path == ".JETLSConfig.toml", hits)
                 @test res.config_source.ref == "HEAD^1"
-                err = try
-                    AgentRuleLint.check(dir; diff_base = "HEAD^1", worktree_config = true)
-                    nothing
-                catch e
-                    e
-                end
-                @test err isa AgentRuleLint.ConfigError
-                @test occursin("must be forbid", sprint(showerror, err))
+                err = @test_throws AgentRuleLint.ConfigError AgentRuleLint.check(
+                    dir;
+                    diff_base = "HEAD^1",
+                    worktree_config = true,
+                )
+                @test occursin("must be forbid", sprint(showerror, err.value))
+                @test AgentRuleLint.exit_code_for_error(err.value) == 2
                 @test AgentRuleLint.cli_main(["check", "--diff", "HEAD^1"]) != 0
             end
         finally
