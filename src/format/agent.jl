@@ -22,6 +22,8 @@ function format_agent(
     extras = verdict_exit_paren(result)
     extras != "(exit $(result.exit_code))" && (headline *= " $extras")
     println(buf, headline)
+    notice = format_config_notice_line(result.config_notice)
+    !isempty(notice) && println(buf, notice)
     println(buf)
     for (rid, all_ds) in groups
         lvl = all_ds[1].level

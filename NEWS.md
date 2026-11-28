@@ -4,6 +4,15 @@ CI-breaking changes are marked **[CI-breaking]**. Tracked from [#65](https://git
 
 ## Unreleased (0.1.0-DEV)
 
+### **[CI-breaking]** `check --diff` loads policy from the diff base by default
+
+Under `--diff`, AgentRuleLint loads `.AgentRuleLint.jl.toml` from the same git ref
+that bounds the diff (default `HEAD^1`), not from the working tree. A PR cannot
+relax the policy that judges it unless you opt in with `--worktree-config`
+(library: `worktree_config = true`) or an explicit `--config` / `--config-from`.
+If that ref has no config file, the built-in policy applies and a notice is printed;
+there is no silent fallback to the working-tree config.
+
 ### **[CI-breaking]** Bundled git via Git.jl (>= 2.32); no system git
 
 AgentRuleLint runs **git bundled through Git.jl**, not `git` on `PATH`. Host git config and attributes

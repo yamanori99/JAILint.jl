@@ -100,10 +100,12 @@ end
 function _run_check_pipeline(root::AbstractString; kwargs...)
     ensure_git_runtime!(root)
     rt = git_runtime()
-    policy = resolve_policy(
+    policy, config_notice = resolve_check_policy(
         root;
         config_path = get(kwargs, :config_path, nothing),
         config_from = get(kwargs, :config_from, nothing),
+        diff_base = get(kwargs, :diff_base, nothing),
+        worktree_config = get(kwargs, :worktree_config, false),
     )
     paths_kw = get(kwargs, :paths, String[])
     user_paths_given = get(kwargs, :user_paths_given, String[])
@@ -286,6 +288,7 @@ function _run_check_pipeline(root::AbstractString; kwargs...)
         below_threshold_mixed = below_mixed,
         git_executable = rt.executable,
         git_version = rt.version,
+        config_notice = something(config_notice, ""),
     )
     return result, contexts
 end

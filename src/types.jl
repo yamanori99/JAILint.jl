@@ -107,6 +107,7 @@ struct CheckResult
     below_threshold_mixed::Bool
     git_executable::String
     git_version::String
+    config_notice::String
 
     function CheckResult(
             violations::Vector{Violation},
@@ -127,6 +128,7 @@ struct CheckResult
             below_threshold_mixed::Bool = false,
             git_executable::String = "",
             git_version::String = "",
+            config_notice::String = "",
         )
         _check_below_threshold_invariant(below_threshold_count, below_threshold_level, below_threshold_mixed)
         return new(
@@ -148,6 +150,7 @@ struct CheckResult
             below_threshold_mixed,
             git_executable,
             git_version,
+            config_notice,
         )
     end
 end

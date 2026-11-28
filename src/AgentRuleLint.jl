@@ -37,6 +37,11 @@ include("format/agent.jl")
 include("format/report.jl")
 
 function _normalize_check_inputs!(kwargs)
+    validate_policy_source_kwargs(;
+        config_path = get(kwargs, :config_path, nothing),
+        config_from = get(kwargs, :config_from, nothing),
+        worktree_config = get(kwargs, :worktree_config, false),
+    )
     nt = NamedTuple(kwargs)
     paths = get(kwargs, :paths, String[])
     if !isempty(paths)
@@ -93,6 +98,7 @@ function _parse_cli_args(cmd::String, rest::Vector{String})
         :format => nothing,
         :config_path => nothing,
         :config_from => nothing,
+        :worktree_config => false,
         :diff_base => nothing,
         :diff_mode => false,
         :output => nothing,
@@ -118,6 +124,10 @@ function _parse_cli_args(cmd::String, rest::Vector{String})
         elseif a == "--config-from" && i + 1 <= length(rest)
             opts[:config_from] = rest[i + 1]
             i += 2
+            continue
+        elseif a == "--worktree-config"
+            opts[:worktree_config] = true
+            i += 1
             continue
         elseif a == "--diff"
             if i + 1 <= length(rest) && !startswith(rest[i + 1], "-")
@@ -203,7 +213,15 @@ function _resolve_emit_format(result::CheckResult, opts)
     return fmt
 end
 
+function _emit_config_notice_stderr(result::CheckResult, fmt::OutputFormat.T)
+    fmt === OutputFormat.JSON || return nothing
+    isempty(result.config_notice) && return nothing
+    println(stderr, result.config_notice)
+    return nothing
+end
+
 function _emit(result::CheckResult, fmt::OutputFormat.T, opts; root::AbstractString = pwd())
+    _emit_config_notice_stderr(result, fmt)
     out_path = opts[:output]
     if out_path === nothing
         io = IOContext(stdout, :color => stdout isa Base.TTY)
@@ -232,11 +250,17 @@ function _cli_check(positional::Vector{String}, opts)
     root = pwd()
     paths = isempty(positional) ? String[] : positional
     opts[:exit_severity] !== nothing && _parse_exit_severity_cli(opts[:exit_severity])
+    validate_policy_source_kwargs(;
+        config_path = opts[:config_path],
+        config_from = opts[:config_from],
+        worktree_config = opts[:worktree_config],
+    )
     result = check(
         root;
         paths = paths,
         config_path = opts[:config_path],
         config_from = opts[:config_from],
+        worktree_config = opts[:worktree_config],
         diff_base = _resolve_diff_kw(opts),
         allow_paths = opts[:allow_paths],
         exit_severity = opts[:exit_severity],
@@ -294,18 +318,26 @@ function _cli_ratchet(positional::Vector{String}, opts)
     root = pwd()
     paths = positional
     diff_base = _resolve_diff_kw(opts)
+    validate_policy_source_kwargs(;
+        config_path = opts[:config_path],
+        config_from = opts[:config_from],
+        worktree_config = opts[:worktree_config],
+    )
     result, contexts = run_check_pipeline(
         root;
         paths = paths,
         config_path = opts[:config_path],
         config_from = opts[:config_from],
+        worktree_config = opts[:worktree_config],
         diff_base = diff_base,
     )
     return git_run_scope() do
-        policy = resolve_policy(
+        policy, _ = resolve_check_policy(
             root;
             config_path = opts[:config_path],
             config_from = opts[:config_from],
+            diff_base = diff_base,
+            worktree_config = opts[:worktree_config],
         )
         scope_paths = _ratchet_scope_paths(root, diff_base, paths, policy)
         merge_scope = diff_base !== nothing || !isempty(paths)
@@ -343,7 +375,9 @@ function _print_cli_help(cmd::String)
               --format human|json|agent   Output format (default: config default_format; invalid values exit 2)
               --config <path>             Alternate config file path
               --config-from <git-ref>     Load $(CONFIG_FILENAME) from a git ref
-              --diff [<base-ref>]         Limit to changed files/lines vs base (default: HEAD^1)
+              --worktree-config           Under --diff, load $(CONFIG_FILENAME) from the working tree
+              --diff [<base-ref>]         Limit to changed files/lines vs base (default: HEAD^1);
+                                          policy loads from the same base unless overridden above
               --allow-paths GLOB,...      Trusted allowlist for scope-paths (requires --diff; not from config)
               --output <path>             Write formatted output to <path>
               --exit-severity forbid|deny|warn
