@@ -64,8 +64,8 @@ const _DIFF_POLICY_FORBIDDEN = "POLICY_BASE_FORBIDDEN"
                 res_wt = AgentRuleLint.check(dir; diff_base = "HEAD^1", worktree_config = true)
                 @test !any(
                     d ->
-                        d.rule_id == "project/policy-src" &&
-                            d.level == AgentRuleLint.Level.DENY && !d.suppressed,
+                    d.rule_id == "project/policy-src" &&
+                        d.level == AgentRuleLint.Level.DENY && !d.suppressed,
                     res_wt.violations,
                 )
             end
@@ -99,16 +99,18 @@ const _DIFF_POLICY_FORBIDDEN = "POLICY_BASE_FORBIDDEN"
                 try
                     open(err_path, "w") do err_io
                         code = redirect_stderr(err_io) do
-                            AgentRuleLint.cli_main([
-                                "check",
-                                "--diff",
-                                "HEAD^1",
-                                "--format",
-                                "json",
-                                "--output",
-                                json_out,
-                                "t.jl",
-                            ])
+                            AgentRuleLint.cli_main(
+                                [
+                                    "check",
+                                    "--diff",
+                                    "HEAD^1",
+                                    "--format",
+                                    "json",
+                                    "--output",
+                                    json_out,
+                                    "t.jl",
+                                ]
+                            )
                         end
                         @test code == res.exit_code
                     end
@@ -126,13 +128,15 @@ const _DIFF_POLICY_FORBIDDEN = "POLICY_BASE_FORBIDDEN"
 
     @testset "worktree-config conflicts exit 2" begin
         @test AgentRuleLint.cli_main(["check", "--diff", "--worktree-config", "--config-from", "HEAD"]) == 2
-        @test AgentRuleLint.cli_main([
-            "check",
-            "--diff",
-            "--worktree-config",
-            "--config",
-            ".AgentRuleLint.jl.toml",
-        ]) == 2
+        @test AgentRuleLint.cli_main(
+            [
+                "check",
+                "--diff",
+                "--worktree-config",
+                "--config",
+                ".AgentRuleLint.jl.toml",
+            ]
+        ) == 2
         @test_throws ArgumentError AgentRuleLint.validate_policy_source_kwargs(;
             worktree_config = true,
             config_from = "HEAD",
