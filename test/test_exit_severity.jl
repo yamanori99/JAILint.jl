@@ -201,7 +201,7 @@
             )
             @test res.exit_code == 0
             @test res.exit_severity == AgentRuleLint.Level.FORBID
-            @test res.exit_severity_source == :config
+            @test res.exit_severity_source == AgentRuleLint.SeveritySource.CONFIG
             @test res.below_threshold_count > 0
             human = AgentRuleLint.format_human(
                 res;

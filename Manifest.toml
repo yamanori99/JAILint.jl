@@ -2,10 +2,10 @@
 
 julia_version = "1.13.4"
 manifest_format = "2.1"
-project_hash = "c02947304ec26bb929ce97d90db0de9dfa707a11"
+project_hash = "0275c09f42d680b44b6801aa28503cd9da1604d9"
 
 [[deps.AgentRuleLint]]
-deps = ["EnumX", "Git", "JuliaSyntax", "PrecompileTools", "SHA", "StyledStrings", "TOML"]
+deps = ["EnumX", "Git", "JSON", "JuliaSyntax", "PrecompileTools", "SHA", "StyledStrings", "TOML"]
 path = "."
 uuid = "c092dd98-a32b-4bb3-9a47-6744e45ef2e3"
 version = "0.1.0-DEV"
@@ -131,6 +131,19 @@ version = "1.13.4"
     [deps.JSON.weakdeps]
     ArrowTypes = "31f734f8-188a-4ce0-8406-c8a06bd891cd"
     Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+
+[[deps.JSONSchema]]
+deps = ["Downloads", "JSON", "URIs"]
+git-tree-sha1 = "5864ebcd5d9c6966c35bc29e536c8b40d713c00c"
+registries = "General"
+uuid = "7d188eb4-7ad8-530c-ae41-71a32a6d4692"
+version = "1.6.0"
+
+    [deps.JSONSchema.extensions]
+    JSONSchemaJSON3Ext = "JSON3"
+
+    [deps.JSONSchema.weakdeps]
+    JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 
 [[deps.JuliaSyntax]]
 git-tree-sha1 = "44859bf9d1ecbac9f70cac888a8cbb6453ab029d"
@@ -368,6 +381,13 @@ version = "1.10.0"
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 version = "1.11.0"
+
+[[deps.URIs]]
+deps = ["Serialization"]
+git-tree-sha1 = "eb3b85ca904a1d1647b15acc091b113b8874b648"
+registries = "General"
+uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
+version = "1.7.3"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]

@@ -1,3 +1,5 @@
+using JSON: JSON
+
 function _json_str(s::AbstractString)
     esc = replace(s, "\\" => "\\\\", "\"" => "\\\"", "\n" => "\\n", "\r" => "\\r", "\t" => "\\t")
     return "\"" * esc * "\""
@@ -28,25 +30,7 @@ function format_json(result::CheckResult)
     )
     push!(lines, _json_val(header))
     for d in sort(result.violations; by = diag_sort_key)
-        rec = Dict{String, Any}(
-            "type" => "diagnostic",
-            "rule_id" => d.rule_id,
-            "origin" => wire_name(d.origin),
-            "level" => wire_name(d.level),
-            "path" => d.path,
-            "span" => Dict(
-                "start_line" => d.span.start_line,
-                "start_col" => d.span.start_col,
-                "end_line" => d.span.end_line,
-                "end_col" => d.span.end_col,
-            ),
-            "anchor_line" => d.anchor_line,
-            "fingerprint" => d.fingerprint,
-            "expect_status" => String(d.expect_status),
-            "suppressed" => d.suppressed,
-            "message" => d.message,
-        )
-        push!(lines, _json_val(rec))
+        push!(lines, JSON.json(DiagnosticRecord(d)))
     end
     summary = Dict{String, Any}(
         "type" => "summary",
@@ -56,7 +40,7 @@ function format_json(result::CheckResult)
         "rules" => length(unique(d.rule_id for d in active_violations(result.violations))),
         "exit_code" => result.exit_code,
         "threshold" => wire_name(result.exit_severity),
-        "threshold_source" => String(result.exit_severity_source),
+        "threshold_source" => wire_name(result.exit_severity_source),
     )
     push!(lines, _json_val(summary))
     return join(lines, '\n') * '\n'

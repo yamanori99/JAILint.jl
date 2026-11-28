@@ -9,6 +9,7 @@ projects = ["test"]
 [deps]
 EnumX = "4e289a0a-7415-4d19-859d-a7e5c4648b56"
 Git = "d7ba0133-e1db-5d97-8f8c-041e4b3a1eb2"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 JuliaSyntax = "70703baa-626e-46a2-a12c-08ffd08c73b4"
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
@@ -21,6 +22,7 @@ JuliaSyntax = {rev = "00299c08ce5591b7390c8c3592d888b39933f1bc", subdir = "Julia
 [compat]
 EnumX = "1"
 Git = "1.5.0"
+JSON = "1"
 JuliaSyntax = "2"
 PrecompileTools = "1.4"
 SHA = "1"

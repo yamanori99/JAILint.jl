@@ -48,7 +48,7 @@ function push_analysis_incomplete!(
             sp,
             sp.start_line,
             "",
-            :none,
+            ExpectStatus.NONE,
             false,
             analysis_incomplete_message(path, analyzer),
             intent,

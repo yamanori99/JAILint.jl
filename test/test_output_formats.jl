@@ -6,14 +6,15 @@ using Test
 
 const SCHEMA_PATH = joinpath(ROOT, "schemas", "check-jsonl.schema.json")
 const HUMAN_GOLDEN_PATH = joinpath(@__DIR__, "fixtures", "human_output_golden.txt")
-const HUMAN_GOLDEN_CS = AgentRuleLint.ConfigSource(:git_ref, "", "origin/main", "9f2c1a4e")
+const HUMAN_GOLDEN_CS =
+    AgentRuleLint.ConfigSource(AgentRuleLint.ConfigSourceKind.GIT_REF, "", "origin/main", "9f2c1a4e")
 
 function strip_ansi_local(s::AbstractString)
     return AgentRuleLint.strip_ansi(s)
 end
 
 function check_result_fixture()
-    cs = AgentRuleLint.ConfigSource(:path, ".AgentRuleLint.jl.toml", "", "")
+    cs = AgentRuleLint.ConfigSource(AgentRuleLint.ConfigSourceKind.PATH, ".AgentRuleLint.jl.toml", "", "")
     d = AgentRuleLint.Violation(
         "project/no-internal-codename",
         AgentRuleLint.Origin.PROJECT,
@@ -22,7 +23,7 @@ function check_result_fixture()
         AgentRuleLint.Span(1, 1, 1, 10),
         1,
         "v1:abc",
-        :none,
+        AgentRuleLint.ExpectStatus.NONE,
         false,
         "forbidden literal matched",
         "Keep internal codenames out of public package files.",
@@ -132,7 +133,7 @@ end
             AgentRuleLint.Span(1, 1, 1, 1),
             1,
             "v1:z",
-            :none,
+            AgentRuleLint.ExpectStatus.NONE,
             false,
             "z-msg",
             "",
@@ -146,7 +147,7 @@ end
             AgentRuleLint.Span(1, 1, 1, 1),
             1,
             "v1:a",
-            :none,
+            AgentRuleLint.ExpectStatus.NONE,
             false,
             "a-msg",
             "",

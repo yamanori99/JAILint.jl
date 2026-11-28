@@ -23,7 +23,7 @@ function _push_silent_catch_violation!(
             sp,
             site.try_line,
             "",
-            :none,
+            ExpectStatus.NONE,
             false,
             msg,
             rule.intent,

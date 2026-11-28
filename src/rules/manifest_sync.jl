@@ -285,7 +285,7 @@ function _push_ms_violation!(
             sp,
             ln,
             "",
-            :none,
+            ExpectStatus.NONE,
             false,
             msg,
             intent,

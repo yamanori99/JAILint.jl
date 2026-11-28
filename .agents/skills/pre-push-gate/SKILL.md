@@ -12,10 +12,9 @@ Run on the exact tree you will push, Julia **`+1.13`**, with no further edits af
 ## Always
 
 1. `runic --check --diff .` using the pin in `.github/runic/Project.toml`.
-2. Trailing-newline audit on all tracked text files (each file ends with a single newline).
-3. `git diff --check` on the staged and unstaged diff you are about to push.
-4. `./.github/jetls-check.sh` (`jetls check --exit-severity=hint`).
-5. `git merge-tree --write-tree origin/main HEAD` must succeed with a clean tree.
+2. `./scripts/whitespace-gate.sh` (tracked text files end with a single newline; `git diff --check` on the same commit range CI uses).
+3. `./.github/jetls-check.sh` (`jetls check --exit-severity=hint`).
+4. `git merge-tree --write-tree origin/main HEAD` must succeed with a clean tree.
 
 ## When scripts or workflows change
 

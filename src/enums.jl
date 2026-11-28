@@ -4,7 +4,13 @@ using EnumX
 
 @enumx Origin AGENTRULELINT PRESET PROJECT
 
+@enumx ConfigSourceKind BUILTIN PATH GIT_REF
+
 @enumx OutputFormat HUMAN JSON AGENT
+
+@enumx ExpectStatus NONE FULFILLED UNFULFILLED DELETED_TEST
+
+@enumx SeveritySource DEFAULT CONFIG CLI
 
 function wire_name(x::Level.T)::String
     return lowercase(String(Symbol(x)))
@@ -14,7 +20,19 @@ function wire_name(x::Origin.T)::String
     return lowercase(String(Symbol(x)))
 end
 
+function wire_name(x::ConfigSourceKind.T)::String
+    return lowercase(String(Symbol(x)))
+end
+
 function wire_name(x::OutputFormat.T)::String
+    return lowercase(String(Symbol(x)))
+end
+
+function wire_name(x::ExpectStatus.T)::String
+    return lowercase(String(Symbol(x)))
+end
+
+function wire_name(x::SeveritySource.T)::String
     return lowercase(String(Symbol(x)))
 end
 

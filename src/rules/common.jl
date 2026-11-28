@@ -29,7 +29,7 @@ function _push_builtin_violation!(
             sp,
             sp.start_line,
             "",
-            :none,
+            ExpectStatus.NONE,
             false,
             msg,
             intent,

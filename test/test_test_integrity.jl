@@ -163,7 +163,7 @@
                 hits = filter(
                     d ->
                     d.rule_id == "test-integrity" &&
-                        d.expect_status == :deleted_test &&
+                        d.expect_status == AgentRuleLint.ExpectStatus.DELETED_TEST &&
                         d.path == "test/case.jl",
                     res.violations,
                 )
@@ -189,7 +189,7 @@
             cd(dir) do
                 res = AgentRuleLint.check(dir; diff_base = "HEAD^1")
                 deleted_hits = filter(
-                    d -> d.rule_id == "test-integrity" && d.expect_status == :deleted_test,
+                    d -> d.rule_id == "test-integrity" && d.expect_status == AgentRuleLint.ExpectStatus.DELETED_TEST,
                     res.violations,
                 )
                 @test isempty(deleted_hits)
@@ -235,7 +235,7 @@
             cd(dir) do
                 res = AgentRuleLint.check(dir; diff_base = "HEAD^1")
                 hits = filter(
-                    d -> d.rule_id == "test-integrity" && d.expect_status == :deleted_test,
+                    d -> d.rule_id == "test-integrity" && d.expect_status == AgentRuleLint.ExpectStatus.DELETED_TEST,
                     res.violations,
                 )
                 @test any(d -> d.path == "test/gone.jl", hits)
@@ -262,7 +262,7 @@
                 hits = filter(
                     d ->
                     d.rule_id == "test-integrity" &&
-                        d.expect_status == :deleted_test &&
+                        d.expect_status == AgentRuleLint.ExpectStatus.DELETED_TEST &&
                         d.path == "test/runtests.jl",
                     res.violations,
                 )
@@ -290,7 +290,7 @@
                 hits = filter(
                     d ->
                     d.rule_id == "test-integrity" &&
-                        d.expect_status == :deleted_test &&
+                        d.expect_status == AgentRuleLint.ExpectStatus.DELETED_TEST &&
                         d.path == "test/gone.jl",
                     res.violations,
                 )

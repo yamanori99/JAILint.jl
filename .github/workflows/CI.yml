@@ -14,6 +14,26 @@ permissions:
   contents: read
 
 jobs:
+  # New optional check; owner may add to branch protection after burn-in.
+  whitespace:
+    name: Repository whitespace - ubuntu-latest - x64
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Trailing newlines and diff whitespace
+        shell: bash
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_BEFORE: ${{ github.event.before }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: ./scripts/whitespace-gate.sh
+
   runic:
     name: Runic formatting - Julia 1.13 - ubuntu-latest - x64
     runs-on: ubuntu-latest

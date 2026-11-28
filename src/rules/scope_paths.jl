@@ -42,7 +42,7 @@ function _scope_paths_diag(path::String, message::String, policy::PolicyBundle)
         Span(1, 1, 1, 1),
         1,
         "",
-        :none,
+        ExpectStatus.NONE,
         false,
         message,
         spec.intent,

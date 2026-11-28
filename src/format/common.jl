@@ -76,15 +76,15 @@ end
 
 function human_policy_banner(result::CheckResult, version::AbstractString)
     cs = result.config_source
-    base = if cs.kind == :git_ref && !isempty(cs.ref)
+    base = if cs.kind == ConfigSourceKind.GIT_REF && !isempty(cs.ref)
         sha = isempty(cs.sha) ? "?" : cs.sha
         "policy bundle base: $(cs.ref) @ $sha"
-    elseif cs.kind == :path && !isempty(cs.path)
+    elseif cs.kind == ConfigSourceKind.PATH && !isempty(cs.path)
         "policy bundle base: $(cs.path)"
-    elseif cs.kind == :builtin
+    elseif cs.kind == ConfigSourceKind.BUILTIN
         "policy bundle base: builtin"
     else
-        "policy bundle base: $(string(cs.kind))"
+        "policy bundle base: $(wire_name(cs.kind))"
     end
     git_s = if isempty(result.git_executable)
         ""
@@ -98,17 +98,17 @@ function _below_threshold_phrase(result::CheckResult)
     n = result.below_threshold_count
     n <= 0 && return ""
     word = n == 1 ? "finding" : "findings"
+    result.below_threshold_mixed && return "$n $word below threshold"
     lvl = result.below_threshold_level
-    lvl == :none && return ""
-    lvl == :mixed && return "$n $word below threshold"
-    return "$n $lvl $word below threshold"
+    lvl === nothing && return ""
+    return "$n $(wire_name(lvl)) $word below threshold"
 end
 
 """Parenthetical verdict clause from `CheckResult` fields only (never policy)."""
 function verdict_exit_paren(result::CheckResult)
     parts = String["exit $(result.exit_code)"]
-    if result.exit_severity_source == :cli && result.exit_severity != result.baseline_exit_severity
-        baseline_word = result.baseline_exit_severity_source == :default ? "default" : "config"
+    if result.exit_severity_source == SeveritySource.CLI && result.exit_severity != result.baseline_exit_severity
+        baseline_word = result.baseline_exit_severity_source == SeveritySource.DEFAULT ? "default" : "config"
         push!(
             parts,
             "threshold $(wire_name(result.exit_severity)) from --exit-severity, $(baseline_word) $(wire_name(result.baseline_exit_severity))",
@@ -162,7 +162,7 @@ function human_rule_footer(rule_id::String, origin::Origin.T, config_path::Abstr
     elseif origin == Origin.PRESET
         return "└ @ $(origin_label(origin)) (run `agentrulelint explain $rule_id` for details)"
     else
-        error("internal: unknown origin ", origin)
+        throw(InternalError("internal: unknown origin $origin"))
     end
 end
 
@@ -223,9 +223,9 @@ function emit_plain_or_styled(io::IO, plain::AbstractString; color = nothing, bo
 end
 
 function config_source_base_label(cs::ConfigSource)
-    cs.kind == :git_ref && !isempty(cs.ref) && return cs.ref
-    cs.kind == :path && !isempty(cs.path) && return cs.path
-    return string(cs.kind)
+    cs.kind == ConfigSourceKind.GIT_REF && !isempty(cs.ref) && return cs.ref
+    cs.kind == ConfigSourceKind.PATH && !isempty(cs.path) && return cs.path
+    return wire_name(cs.kind)
 end
 
 function snippet_for_violation(root::AbstractString, d::Violation)

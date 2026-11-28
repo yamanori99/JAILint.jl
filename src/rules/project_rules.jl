@@ -39,7 +39,7 @@ function _push_project_violation!(
             sp,
             sp.start_line,
             "",
-            :none,
+            ExpectStatus.NONE,
             false,
             msg,
             intent,

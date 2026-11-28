@@ -22,7 +22,7 @@ function diagnostic_signatures(result::CheckResult)
         (
             d.rule_id,
             d.anchor_line,
-            String(d.expect_status),
+            AgentRuleLint.wire_name(d.expect_status),
             d.suppressed,
         ) for d in result.violations
     )

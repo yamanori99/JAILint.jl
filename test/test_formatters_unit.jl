@@ -8,7 +8,7 @@
         AgentRuleLint.Span(1, 1, 1, 10),
         1,
         "v1:abc",
-        :none,
+        AgentRuleLint.ExpectStatus.NONE,
         false,
         "forbidden literal matched",
         "i",

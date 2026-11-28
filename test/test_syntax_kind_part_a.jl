@@ -64,6 +64,6 @@
         res = AgentRuleLint.check(root; paths = [rel])
         hits = filter(d -> d.rule_id == "silent-catch", res.violations)
         @test !isempty(hits)
-        @test any(d -> d.suppressed && d.expect_status == :fulfilled, hits)
+        @test any(d -> d.suppressed && d.expect_status == AgentRuleLint.ExpectStatus.FULFILLED, hits)
     end
 end

@@ -14,7 +14,7 @@ SCOPE_RULE = "scope-paths"
         return filter(
             d ->
             d.rule_id == SCOPE_RULE && !d.suppressed &&
-                d.expect_status != :fulfilled && d.level != AgentRuleLint.Level.ALLOW,
+                d.expect_status != AgentRuleLint.ExpectStatus.FULFILLED && d.level != AgentRuleLint.Level.ALLOW,
             res.violations,
         )
     end

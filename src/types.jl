@@ -15,16 +15,16 @@ function Base.isless(a::Span, b::Span)
 end
 
 struct ConfigSource
-    kind::Symbol
+    kind::ConfigSourceKind.T
     path::String
     ref::String
     sha::String
 end
 
-ConfigSource() = ConfigSource(:builtin, "", "", "")
+ConfigSource() = ConfigSource(ConfigSourceKind.BUILTIN, "", "", "")
 
 function config_source_dict(cs::ConfigSource)
-    d = Dict{String, Any}("kind" => string(cs.kind))
+    d = Dict{String, Any}("kind" => wire_name(cs.kind))
     !isempty(cs.path) && (d["path"] = cs.path)
     !isempty(cs.ref) && (d["ref"] = cs.ref)
     !isempty(cs.sha) && (d["sha"] = cs.sha)
@@ -40,7 +40,7 @@ struct Violation
     span::Span
     anchor_line::Int
     fingerprint::String
-    expect_status::Symbol # :none; expect-audit states; :deleted_test for test-integrity diff path findings
+    expect_status::ExpectStatus.T
     suppressed::Bool
     message::String
     intent::String
@@ -60,6 +60,34 @@ Base.:(==)(a::CeilingEntry, b::CeilingEntry) = isequal(a, b)
 
 const DEFAULT_EXIT_SEVERITY = Level.WARN
 
+function _check_below_threshold_invariant(
+        below_threshold_count::Int,
+        below_threshold_level::Union{Nothing, Level.T},
+        below_threshold_mixed::Bool,
+    )
+    if below_threshold_count <= 0
+        below_threshold_level === nothing || throw(
+            InternalError("below_threshold_count == 0 requires below_threshold_level === nothing"),
+        )
+        below_threshold_mixed && throw(
+            InternalError("below_threshold_count == 0 requires below_threshold_mixed == false"),
+        )
+        return
+    end
+    if below_threshold_mixed
+        below_threshold_level === nothing || throw(
+            InternalError("below_threshold_mixed requires below_threshold_level === nothing"),
+        )
+        return
+    end
+    below_threshold_level === nothing && throw(
+        InternalError(
+            "homogeneous below-threshold findings require below_threshold_level",
+        ),
+    )
+    return
+end
+
 struct CheckResult
     violations::Vector{Violation}
     complete::Bool
@@ -71,11 +99,12 @@ struct CheckResult
     violation_count::Int
     ceilings::CeilingEntry
     exit_severity::Level.T
-    exit_severity_source::Symbol
+    exit_severity_source::SeveritySource.T
     baseline_exit_severity::Level.T
-    baseline_exit_severity_source::Symbol
+    baseline_exit_severity_source::SeveritySource.T
     below_threshold_count::Int
-    below_threshold_level::Symbol
+    below_threshold_level::Union{Nothing, Level.T}
+    below_threshold_mixed::Bool
     git_executable::String
     git_version::String
 
@@ -90,14 +119,16 @@ struct CheckResult
             violation_count::Int;
             ceilings::CeilingEntry = CeilingEntry(Dict(), Dict()),
             exit_severity::Level.T = DEFAULT_EXIT_SEVERITY,
-            exit_severity_source::Symbol = :default,
+            exit_severity_source::SeveritySource.T = SeveritySource.DEFAULT,
             baseline_exit_severity::Level.T = DEFAULT_EXIT_SEVERITY,
-            baseline_exit_severity_source::Symbol = :default,
+            baseline_exit_severity_source::SeveritySource.T = SeveritySource.DEFAULT,
             below_threshold_count::Int = 0,
-            below_threshold_level::Symbol = :none,
+            below_threshold_level::Union{Nothing, Level.T} = nothing,
+            below_threshold_mixed::Bool = false,
             git_executable::String = "",
             git_version::String = "",
         )
+        _check_below_threshold_invariant(below_threshold_count, below_threshold_level, below_threshold_mixed)
         return new(
             violations,
             complete,
@@ -114,6 +145,7 @@ struct CheckResult
             baseline_exit_severity_source,
             below_threshold_count,
             below_threshold_level,
+            below_threshold_mixed,
             git_executable,
             git_version,
         )
@@ -238,12 +270,13 @@ UnsafeBoundaryConfig() = UnsafeBoundaryConfig(false, Level.WARN, String[], Regex
 struct ProtectedGlobEntry
     regex::Regex
     reason::String
+    change_types::Union{Nothing, Set{String}}
 end
 struct PolicyBundle
     agentrulelint_version::VersionNumber
     default_format::OutputFormat.T
     exit_severity::Level.T
-    exit_severity_source::Symbol
+    exit_severity_source::SeveritySource.T
     max_hits_per_rule::Int
     presets::Vector{String}
     rules::Dict{String, RuleSpec}
@@ -327,7 +360,7 @@ function origin_label(o::Origin.T)::String
     elseif o == Origin.PROJECT
         return "[Project]"
     else
-        error("internal: unknown origin ", o)
+        throw(InternalError("internal: unknown origin $o"))
     end
 end
 
