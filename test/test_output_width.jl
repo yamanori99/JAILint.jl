@@ -298,7 +298,7 @@ end
                 AgentRuleLint.Span(1, cap + 10, 1, cap + 20),
                 1,
                 "v1:beyond",
-                :none,
+                AgentRuleLint.ExpectStatus.NONE,
                 false,
                 "m",
                 "",
