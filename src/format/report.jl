@@ -1,3 +1,5 @@
+using JSON: JSON
+
 mutable struct _AnonymizerCounters
     id::Int
     str::Int
@@ -46,15 +48,8 @@ end
 
 function format_report(fingerprint::AbstractString, diagnostic::Violation, source::AbstractString)
     buf = IOBuffer()
-    header = Dict{String, Any}(
-        "type" => "header",
-        "agentrulelint_version" => string(AGENTRULELINT_VERSION),
-        "julia_version" => string(VERSION),
-        "parser" => parser_rev_string(),
-        "position_encoding" => "utf8-codepoint-1based",
-    )
-    println(buf, _json_val(header))
-    println(buf, _json_val(Dict("rule_id" => diagnostic.rule_id)))
+    println(buf, JSON.json(ReportHeaderRecord()))
+    println(buf, JSON.json(ReportRuleIdRecord(diagnostic.rule_id)))
     skel = skeleton_ast_snippet(source)
     lines = split(normalize_source(source), '\n')
     line =
@@ -62,13 +57,7 @@ function format_report(fingerprint::AbstractString, diagnostic::Violation, sourc
     anon = anonymize_snippet(line)
     println(
         buf,
-        _json_val(
-            Dict(
-                "fingerprint" => fingerprint,
-                "snippet" => anon,
-                "pattern_hash" => pattern_hash(skel),
-            ),
-        ),
+        JSON.json(ReportSnippetRecord(String(fingerprint), pattern_hash(skel), anon)),
     )
     return String(take!(buf))
 end

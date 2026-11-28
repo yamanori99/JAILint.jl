@@ -1,0 +1,3 @@
+{"agentrulelint_version":"<VERSION>","julia_version":"<JULIA_VERSION>","parser":"<PARSER>","position_encoding":"utf8-codepoint-1based","type":"header"}
+{"rule_id":"project/no-internal-codename"}
+{"fingerprint":"v1:abc","pattern_hash":"v1:4229ff9f94fdc7ca01ca2e8ead4efe91e9eda284","snippet":"f1 = \"s1\""}

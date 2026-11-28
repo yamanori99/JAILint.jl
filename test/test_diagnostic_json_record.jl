@@ -24,7 +24,22 @@ function _span_keys_from_golden(path::AbstractString)
     error("no diagnostic line in $path")
 end
 
+function _record_keys_from_golden(record_type::AbstractString)
+    for line in split(read(_GOLDEN_JSON, String), '\n'; keepempty = false)
+        obj = JSON.parse(line; dicttype = Dict{String, Any})
+        String(obj["type"]) == record_type || continue
+        return collect(String, sort(keys(obj)))
+    end
+    error("no $record_type line in golden")
+end
+
 @testset "diagnostic JSON record contract" begin
+    @testset "header and summary record fields match golden keys" begin
+        @test sort(collect(String.(fieldnames(AgentRuleLint.HeaderRecord)))) ==
+            _record_keys_from_golden("header")
+        @test sort(collect(String.(fieldnames(AgentRuleLint.SummaryRecord)))) ==
+            _record_keys_from_golden("summary")
+    end
     @testset "record fields match golden keys" begin
         golden_keys = _diagnostic_keys_from_golden(_GOLDEN_JSON)
         record_keys = String.(fieldnames(AgentRuleLint.DiagnosticRecord))

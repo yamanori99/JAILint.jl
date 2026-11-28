@@ -1,5 +1,6 @@
 using AgentRuleLint
 using JSON
+using JSONSchema
 using Test
 
 # ROOT comes from ParallelTestRunner init_code in test/runtests.jl.
@@ -52,25 +53,22 @@ function jsonl_record(line::AbstractString)::Dict{String, Any}
 end
 
 function validate_jsonl_schema!(text::AbstractString)
-    JSON.parse(read(SCHEMA_PATH, String))
+    full = JSON.parse(read(SCHEMA_PATH, String); dicttype = Dict{String, Any})
+    validator = Schema(
+        Dict(
+            "\$defs" => full["\$defs"],
+            "oneOf" => full["items"]["oneOf"],
+        ),
+    )
     lines = split(strip(text), '\n')
     length(lines) >= 2 || error("expected header, diagnostics, and summary lines")
     kinds = String[]
     for (i, line) in enumerate(lines)
         obj = jsonl_record(line)
+        err = validate(validator, obj)
+        err === nothing || error("schema validation failed at line $i: $err")
         t = String(obj["type"])
         push!(kinds, t)
-        if t == "header"
-            @test obj["version"] isa AbstractString
-            @test String(obj["position_encoding"]) == "utf8-codepoint-1based"
-        elseif t == "diagnostic"
-            @test haskey(obj, "rule_id")
-            @test haskey(obj, "span")
-        elseif t == "summary"
-            @test obj["exit_code"] isa Integer
-        else
-            error("unknown record type $t at line $i")
-        end
     end
     @test kinds[1] == "header"
     @test kinds[end] == "summary"

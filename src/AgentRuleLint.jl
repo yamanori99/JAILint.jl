@@ -35,6 +35,8 @@ include("format/common.jl")
 include("format/human.jl")
 include("format/agent.jl")
 include("format/report.jl")
+include("schema.jl")
+export output_schema, write_schemas
 
 function _normalize_check_inputs!(kwargs)
     nt = NamedTuple(kwargs)

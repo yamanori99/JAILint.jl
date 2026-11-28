@@ -1,92 +1,235 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/yamanori99/AgentRuleLint.jl/schemas/check-jsonl.schema.json",
-  "title": "AgentRuleLint check JSONL",
-  "description": "One JSON object per line from `agentrulelint check --format=json`. Fields marked unstable may change in 0.1.0 without a major bump.",
-  "type": "array",
-  "items": {
-    "oneOf": [
-      { "$ref": "#/$defs/header" },
-      { "$ref": "#/$defs/diagnostic" },
-      { "$ref": "#/$defs/summary" }
-    ]
-  },
   "$defs": {
-    "header": {
-      "type": "object",
-      "required": ["type", "version", "julia_version", "parser", "config_source", "position_encoding"],
-      "properties": {
-        "type": { "const": "header" },
-        "version": { "type": "string" },
-        "julia_version": { "type": "string" },
-        "parser": { "type": "string", "description": "Unstable in 0.1.0." },
-        "config_source": { "type": "object" },
-        "position_encoding": { "const": "utf8-codepoint-1based" }
-      },
-      "additionalProperties": false
-    },
     "diagnostic": {
-      "type": "object",
-      "required": [
-        "type",
-        "rule_id",
-        "origin",
-        "level",
-        "path",
-        "span",
-        "anchor_line",
-        "fingerprint",
-        "expect_status",
-        "suppressed",
-        "message"
-      ],
+      "additionalProperties": false,
       "properties": {
-        "type": { "const": "diagnostic" },
-        "rule_id": { "type": "string" },
-        "origin": { "type": "string" },
-        "level": { "type": "string" },
-        "path": { "type": "string" },
-        "span": {
-          "type": "object",
-          "required": ["start_line", "start_col", "end_line", "end_col"],
-          "properties": {
-            "start_line": { "type": "integer" },
-            "start_col": { "type": "integer" },
-            "end_line": { "type": "integer" },
-            "end_col": { "type": "integer" }
-          }
+        "anchor_line": {
+          "type": "integer"
         },
-        "anchor_line": { "type": "integer" },
-        "fingerprint": { "type": "string" },
-        "expect_status": { "type": "string" },
-        "suppressed": { "type": "boolean" },
-        "message": { "type": "string", "description": "Unstable in 0.1.0." }
+        "expect_status": {
+          "enum": [
+            "deleted_test",
+            "fulfilled",
+            "none",
+            "unfulfilled"
+          ],
+          "type": "string"
+        },
+        "fingerprint": {
+          "pattern": "^v1:[0-9a-f]{40}$",
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "allow",
+            "deny",
+            "forbid",
+            "warn"
+          ],
+          "type": "string"
+        },
+        "message": {
+          "description": "Unstable in 0.1.0.",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "agentrulelint",
+            "preset",
+            "project"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "span": {
+          "additionalProperties": false,
+          "properties": {
+            "end_col": {
+              "type": "integer"
+            },
+            "end_line": {
+              "type": "integer"
+            },
+            "start_col": {
+              "type": "integer"
+            },
+            "start_line": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "end_col",
+            "end_line",
+            "start_col",
+            "start_line"
+          ],
+          "type": "object"
+        },
+        "suppressed": {
+          "type": "boolean"
+        },
+        "type": {
+          "const": "diagnostic",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "anchor_line",
+        "expect_status",
+        "fingerprint",
+        "level",
+        "message",
+        "origin",
+        "path",
+        "rule_id",
+        "span",
+        "suppressed",
+        "type"
+      ],
+      "type": "object"
+    },
+    "header": {
+      "additionalProperties": false,
+      "properties": {
+        "config_source": {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "builtin",
+                "git_ref",
+                "path"
+              ],
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "ref": {
+              "type": "string"
+            },
+            "sha": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        },
+        "git_executable": {
+          "type": "string"
+        },
+        "git_version": {
+          "type": "string"
+        },
+        "julia_version": {
+          "type": "string"
+        },
+        "parser": {
+          "description": "Unstable in 0.1.0.",
+          "type": "string"
+        },
+        "position_encoding": {
+          "const": "utf8-codepoint-1based",
+          "type": "string"
+        },
+        "type": {
+          "const": "header",
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "config_source",
+        "git_executable",
+        "git_version",
+        "julia_version",
+        "parser",
+        "position_encoding",
+        "type",
+        "version"
+      ],
+      "type": "object"
     },
     "summary": {
-      "type": "object",
-      "required": [
-        "type",
-        "complete",
-        "violations",
-        "suppressed",
-        "rules",
-        "exit_code",
-        "threshold",
-        "threshold_source"
-      ],
+      "additionalProperties": false,
       "properties": {
-        "type": { "const": "summary" },
-        "complete": { "type": "boolean" },
-        "violations": { "type": "integer" },
-        "suppressed": { "type": "integer" },
-        "rules": { "type": "integer" },
-        "exit_code": { "type": "integer" },
-        "threshold": { "enum": ["forbid", "deny", "warn"] },
-        "threshold_source": { "enum": ["default", "config", "cli"] }
+        "complete": {
+          "type": "boolean"
+        },
+        "exit_code": {
+          "maximum": 3,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rules": {
+          "type": "integer"
+        },
+        "suppressed": {
+          "type": "integer"
+        },
+        "threshold": {
+          "enum": [
+            "allow",
+            "deny",
+            "forbid",
+            "warn"
+          ],
+          "type": "string"
+        },
+        "threshold_source": {
+          "enum": [
+            "cli",
+            "config",
+            "default"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "const": "summary",
+          "type": "string"
+        },
+        "violations": {
+          "type": "integer"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "complete",
+        "exit_code",
+        "rules",
+        "suppressed",
+        "threshold",
+        "threshold_source",
+        "type",
+        "violations"
+      ],
+      "type": "object"
     }
-  }
+  },
+  "$id": "https://github.com/yamanori99/AgentRuleLint.jl/schemas/check-jsonl.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One JSON object per line from `agentrulelint check --format=json`. Fields marked unstable may change in 0.1.0-DEV without a major bump.",
+  "items": {
+    "oneOf": [
+      {
+        "$ref": "#/$defs/header"
+      },
+      {
+        "$ref": "#/$defs/diagnostic"
+      },
+      {
+        "$ref": "#/$defs/summary"
+      }
+    ]
+  },
+  "title": "AgentRuleLint check JSONL",
+  "type": "array"
 }

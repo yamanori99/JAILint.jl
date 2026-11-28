@@ -23,14 +23,6 @@ end
 
 ConfigSource() = ConfigSource(ConfigSourceKind.BUILTIN, "", "", "")
 
-function config_source_dict(cs::ConfigSource)
-    d = Dict{String, Any}("kind" => wire_name(cs.kind))
-    !isempty(cs.path) && (d["path"] = cs.path)
-    !isempty(cs.ref) && (d["ref"] = cs.ref)
-    !isempty(cs.sha) && (d["sha"] = cs.sha)
-    return d
-end
-
 """Single lint finding (`rule_id` is always a canonical slug)."""
 struct Violation
     rule_id::String

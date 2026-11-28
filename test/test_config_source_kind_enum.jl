@@ -17,11 +17,28 @@ end
         end
     end
 
-    @testset "config_source_dict uses wire_name for kind" begin
+    @testset "ConfigSourceRecord JSON omits empty path/ref/sha" begin
+        using JSON: JSON
         cs = AgentRuleLint.ConfigSource(AgentRuleLint.ConfigSourceKind.PATH, "cfg.toml", "", "")
-        d = AgentRuleLint.config_source_dict(cs)
-        @test d["kind"] == "path"
-        @test d["path"] == "cfg.toml"
+        @test JSON.json(AgentRuleLint.ConfigSourceRecord(cs)) == "{\"kind\":\"path\",\"path\":\"cfg.toml\"}"
+        cs_ref = AgentRuleLint.ConfigSource(
+            AgentRuleLint.ConfigSourceKind.GIT_REF,
+            "",
+            "origin/main",
+            "abc1234",
+        )
+        @test JSON.json(AgentRuleLint.ConfigSourceRecord(cs_ref)) ==
+            "{\"kind\":\"git_ref\",\"ref\":\"origin/main\",\"sha\":\"abc1234\"}"
+        cs_all = AgentRuleLint.ConfigSource(
+            AgentRuleLint.ConfigSourceKind.GIT_REF,
+            "cfg.toml",
+            "origin/main",
+            "abc1234",
+        )
+        @test JSON.json(AgentRuleLint.ConfigSourceRecord(cs_all)) ==
+            "{\"kind\":\"git_ref\",\"path\":\"cfg.toml\",\"ref\":\"origin/main\",\"sha\":\"abc1234\"}"
+        builtin = AgentRuleLint.ConfigSource(AgentRuleLint.ConfigSourceKind.BUILTIN, "", "", "")
+        @test JSON.json(AgentRuleLint.ConfigSourceRecord(builtin)) == "{\"kind\":\"builtin\"}"
     end
 
     @testset "human_policy_banner base is distinct per kind" begin
