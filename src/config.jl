@@ -640,6 +640,58 @@ function load_policy_from_ref(root::AbstractString, ref::AbstractString)
     return build_policy(raw, cfg_path, cs)
 end
 
+function _builtin_policy_notice(ref::AbstractString)
+    return "no config file was found at $(String(ref)) and the built-in policy was used"
+end
+
+function load_policy_from_ref_or_builtin(root::AbstractString, ref::AbstractString)
+    root = abspath(String(root))
+    ref_s = String(ref)
+    sha = git_resolve_commit_sha(root, ref_s)
+    reject_legacy_config_at_ref!(root, sha)
+    if git_tree_path_exists(root, sha, CONFIG_FILENAME)
+        return load_policy_from_ref(root, ref_s), nothing
+    end
+    return default_policy(root), _builtin_policy_notice(ref_s)
+end
+
+function validate_policy_source_kwargs(;
+        config_path = nothing,
+        config_from = nothing,
+        worktree_config::Bool = false,
+    )
+    worktree_config || return nothing
+    config_from !== nothing &&
+        throw(ArgumentError("--worktree-config cannot be combined with --config-from"))
+    config_path !== nothing &&
+        throw(ArgumentError("--worktree-config cannot be combined with --config"))
+    return nothing
+end
+
+function resolve_check_policy(
+        root::AbstractString;
+        config_path = nothing,
+        config_from = nothing,
+        diff_base = nothing,
+        worktree_config::Bool = false,
+    )
+    validate_policy_source_kwargs(;
+        config_path = config_path,
+        config_from = config_from,
+        worktree_config = worktree_config,
+    )
+    if config_from !== nothing
+        return resolve_policy(root; config_path = config_path, config_from = config_from), nothing
+    end
+    if config_path !== nothing
+        return resolve_policy(root; config_path = config_path), nothing
+    end
+    if worktree_config || diff_base === nothing
+        return resolve_policy(root), nothing
+    end
+    return load_policy_from_ref_or_builtin(root, diff_base)
+end
+
 function default_policy(root::AbstractString)
     ver = AGENTRULELINT_VERSION
     rules = Dict{String, RuleSpec}(

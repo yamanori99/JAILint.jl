@@ -44,8 +44,10 @@ AgentRuleLint uses the **git bundled through [Git.jl](https://github.com/JuliaIO
 ignored (`GIT_CONFIG_NOSYSTEM`, empty global config, `GIT_ATTR_NOSYSTEM`, `core.attributesFile`).
 The resolved git path and version appear in human, agent, and JSON output headers. Plain `check` needs a
 git repository for **manifest-sync**
-(tracked `Project.toml` / `Manifest.toml` pairs). **`check --diff`**, **`--config-from`**, ceiling
-ratchet, protected-path base comparison, and scope-paths also read git history. Only the repository
+(tracked `Project.toml` / `Manifest.toml` pairs). **`check --diff`** loads lint policy from the diff
+base ref by default (same ref as the file scope; use **`--worktree-config`**, **`--config`**, or
+**`--config-from`** to override). Ceiling ratchet, protected-path base comparison, and scope-paths
+also read git history. Only the repository
 root you pass is trusted via `safe.directory` (not worktrees or submodules as separate roots).
 
 Agents run `agentrulelint check --format agent`.

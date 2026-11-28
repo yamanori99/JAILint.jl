@@ -74,6 +74,12 @@ function human_ceiling_display(ceilings::CeilingEntry, rule_id::String)
     return string(total)
 end
 
+function format_config_notice_line(notice::AbstractString)
+    notice = strip(String(notice))
+    isempty(notice) && return ""
+    return notice
+end
+
 function human_policy_banner(result::CheckResult, version::AbstractString)
     cs = result.config_source
     base = if cs.kind == ConfigSourceKind.GIT_REF && !isempty(cs.ref)

@@ -39,6 +39,8 @@ function format_human(
     ver = something(_agentrulelint_version, string(AGENTRULELINT_VERSION))
     banner = human_policy_banner(result, ver)
     println(buf, banner)
+    notice = format_config_notice_line(result.config_notice)
+    !isempty(notice) && println(buf, notice)
     println(buf)
 
     for (rule_id, ds) in groups
