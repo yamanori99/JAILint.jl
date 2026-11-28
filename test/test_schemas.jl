@@ -101,10 +101,10 @@ end
         full = JSON.parse(read(SCHEMA_PATH, String); dicttype = Dict{String, Any})
         defs = full["\$defs"]
         for (def_name, rt) in (
-            ("header", AgentRuleLint.HeaderRecord),
-            ("diagnostic", AgentRuleLint.DiagnosticRecord),
-            ("summary", AgentRuleLint.SummaryRecord),
-        )
+                ("header", AgentRuleLint.HeaderRecord),
+                ("diagnostic", AgentRuleLint.DiagnosticRecord),
+                ("summary", AgentRuleLint.SummaryRecord),
+            )
             @test _schema_property_keys(defs, def_name) == sort(collect(String.(fieldnames(rt))))
         end
         hdr_props = defs["header"]["properties"]["config_source"]["properties"]

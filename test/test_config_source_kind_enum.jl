@@ -29,6 +29,14 @@ end
         )
         @test JSON.json(AgentRuleLint.ConfigSourceRecord(cs_ref)) ==
             "{\"kind\":\"git_ref\",\"ref\":\"origin/main\",\"sha\":\"abc1234\"}"
+        cs_all = AgentRuleLint.ConfigSource(
+            AgentRuleLint.ConfigSourceKind.GIT_REF,
+            "cfg.toml",
+            "origin/main",
+            "abc1234",
+        )
+        @test JSON.json(AgentRuleLint.ConfigSourceRecord(cs_all)) ==
+            "{\"kind\":\"git_ref\",\"path\":\"cfg.toml\",\"ref\":\"origin/main\",\"sha\":\"abc1234\"}"
         builtin = AgentRuleLint.ConfigSource(AgentRuleLint.ConfigSourceKind.BUILTIN, "", "", "")
         @test JSON.json(AgentRuleLint.ConfigSourceRecord(builtin)) == "{\"kind\":\"builtin\"}"
     end

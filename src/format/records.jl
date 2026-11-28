@@ -66,6 +66,37 @@ function SummaryRecord(result::CheckResult)
     )
 end
 
+"""`agentrulelint report` JSON header line (field order matches sorted JSON key order)."""
+struct ReportHeaderRecord
+    agentrulelint_version::String
+    julia_version::String
+    parser::String
+    position_encoding::String
+    type::String
+end
+
+function ReportHeaderRecord()
+    return ReportHeaderRecord(
+        string(AGENTRULELINT_VERSION),
+        string(VERSION),
+        parser_rev_string(),
+        "utf8-codepoint-1based",
+        "header",
+    )
+end
+
+"""`agentrulelint report` JSON rule_id line."""
+struct ReportRuleIdRecord
+    rule_id::String
+end
+
+"""`agentrulelint report` JSON fingerprint/snippet line (field order matches sorted JSON key order)."""
+struct ReportSnippetRecord
+    fingerprint::String
+    pattern_hash::String
+    snippet::String
+end
+
 """Span object in JSON diagnostic records (field order matches sorted JSON key order)."""
 struct SpanRecord
     end_col::Int
@@ -108,11 +139,12 @@ function DiagnosticRecord(d::Violation)::DiagnosticRecord
 end
 
 function StructUtils.lower(::JSONStyle, cs::ConfigSourceRecord)
-    d = Dict{String, Any}("kind" => wire_name(cs.kind))
-    cs.path !== nothing && (d["path"] = cs.path)
-    cs.ref !== nothing && (d["ref"] = cs.ref)
-    cs.sha !== nothing && (d["sha"] = cs.sha)
-    return d
+    pairs = Pair{Symbol, String}[]
+    push!(pairs, :kind => wire_name(cs.kind))
+    cs.path !== nothing && push!(pairs, :path => cs.path)
+    cs.ref !== nothing && push!(pairs, :ref => cs.ref)
+    cs.sha !== nothing && push!(pairs, :sha => cs.sha)
+    return NamedTuple(pairs)
 end
 
 StructUtils.lower(::JSONStyle, x::ConfigSourceKind.T) = wire_name(x)

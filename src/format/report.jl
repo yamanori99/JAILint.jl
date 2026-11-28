@@ -1,21 +1,4 @@
-function _report_json_str(s::AbstractString)
-    esc = replace(s, "\\" => "\\\\", "\"" => "\\\"", "\n" => "\\n", "\r" => "\\r", "\t" => "\\t")
-    return "\"" * esc * "\""
-end
-
-function _report_json_val(v)
-    v isa Bool && return v ? "true" : "false"
-    v isa Integer && return string(v)
-    v isa AbstractFloat && return string(v)
-    v isa AbstractString && return _report_json_str(v)
-    v isa Symbol && return _report_json_str(String(v))
-    v isa Dict && return "{" * join(
-        [_report_json_str(string(k)) * ":" * _report_json_val(val) for (k, val) in sort(collect(v); by = first)],
-        ",",
-    ) * "}"
-    v isa AbstractVector && return "[" * join(_report_json_val.(v), ",") * "]"
-    return _report_json_str(string(v))
-end
+using JSON: JSON
 
 mutable struct _AnonymizerCounters
     id::Int
@@ -65,15 +48,8 @@ end
 
 function format_report(fingerprint::AbstractString, diagnostic::Violation, source::AbstractString)
     buf = IOBuffer()
-    header = Dict{String, Any}(
-        "type" => "header",
-        "agentrulelint_version" => string(AGENTRULELINT_VERSION),
-        "julia_version" => string(VERSION),
-        "parser" => parser_rev_string(),
-        "position_encoding" => "utf8-codepoint-1based",
-    )
-    println(buf, _report_json_val(header))
-    println(buf, _report_json_val(Dict("rule_id" => diagnostic.rule_id)))
+    println(buf, JSON.json(ReportHeaderRecord()))
+    println(buf, JSON.json(ReportRuleIdRecord(diagnostic.rule_id)))
     skel = skeleton_ast_snippet(source)
     lines = split(normalize_source(source), '\n')
     line =
@@ -81,13 +57,7 @@ function format_report(fingerprint::AbstractString, diagnostic::Violation, sourc
     anon = anonymize_snippet(line)
     println(
         buf,
-        _report_json_val(
-            Dict(
-                "fingerprint" => fingerprint,
-                "snippet" => anon,
-                "pattern_hash" => pattern_hash(skel),
-            ),
-        ),
+        JSON.json(ReportSnippetRecord(String(fingerprint), pattern_hash(skel), anon)),
     )
     return String(take!(buf))
 end
