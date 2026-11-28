@@ -140,10 +140,10 @@ end
 
 function StructUtils.lower(::JSONStyle, cs::ConfigSourceRecord)
     pairs = Pair{Symbol, String}[]
-    push!(pairs, :kind => wire_name(cs.kind))
-    cs.path !== nothing && push!(pairs, :path => cs.path)
-    cs.ref !== nothing && push!(pairs, :ref => cs.ref)
-    cs.sha !== nothing && push!(pairs, :sha => cs.sha)
+    push!(pairs, Symbol("kind") => wire_name(cs.kind))
+    cs.path !== nothing && push!(pairs, Symbol("path") => cs.path)
+    cs.ref !== nothing && push!(pairs, Symbol("ref") => cs.ref)
+    cs.sha !== nothing && push!(pairs, Symbol("sha") => cs.sha)
     return NamedTuple(pairs)
 end
 
